@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/JavaModulesApp.iml" filepath="$PROJECT_DIR$/JavaModulesApp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/com.ukg.demo/com.ukg.demo.iml" filepath="$PROJECT_DIR$/com.ukg.demo/com.ukg.demo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/com.ukg.greet/com.ukg.greet.iml" filepath="$PROJECT_DIR$/com.ukg.greet/com.ukg.greet.iml" />
+      <module fileurl="file://$PROJECT_DIR$/com.ukg.main/com.ukg.main.iml" filepath="$PROJECT_DIR$/com.ukg.main/com.ukg.main.iml" />
+    </modules>
+  </component>
+</project>

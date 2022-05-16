@@ -1,0 +1,232 @@
+
+
+Software setup:
+
+1. JDK 11 - either oracle jdk or open jdk
+2. Intellij idea or Ecplise
+..............................................................................................				                Java 11
+..............................................................................................
+
+How session is planned? Road Map
+
+1.New Programming / api features
+2.New Arch features,infrastructure features,tools
+..............................................................................................
+	 				Java
+		Java is not only Programming language, but technology.
+
+Java Technology offers tools,languages,compilers,runtimes(jvm).
+
+Java apps are built using many programming lanugages which are jvm dialects , meaning that on jvm you can run apps which are created using many languages.
+
+Languages are 
+1.Java Programming lanugage
+2.Groovy
+3.Scala
+4.Kotlin
+.............................................................................................
+				Java is oo - principles
+..............................................................................................
+
+1.Abstraction
+2.Encapsulation
+3.Modularity
+4.Typing
+   -Polyphisim
+5.Hierarchy
+   -has-a
+   -inheritance
+6.concurrency
+  
+7.Persistency
+............................................................................................
+				        Java 8
+                 Before Java 8 only Object oriented, but java 8 onwards function style as
+			    well
+
+Java is object oriented, functional style programming language.
+
+What is functional Programming
+
+Functional Programming is one of the oldest programming stye, it is first style of programming, in 1950 this model was introduced,
+
+FP is based on mathmetical abstraction "Lambda Calculus"
+
+Java 8 implments functional programming via "special interface" called functional interface.
+
+Java 8 fp implementations:
+
+1.java stream apis
+..............................................................................................
+Why functional Programming or advantages?
+
+1.Reduce code -  declarative programming , where as oo is imperative
+2.Declarative concurrency
+3.Immutablity and Escaping from thread sync
+.............................................................................................
+  		     Funtional Programming principles
+
+
+1.functions are first class citizen
+   ->functions are values like strings,numbers,boolean,objects
+since function is value can be assigned to a variable.
+
+2.Higher order functions
+   function which accepts other functions as parameters and can return other functions
+  functions are building block for nonblocking and async arch.
+
+3.pure functions
+   function receives parameters which never modifity its input, returns as it is.
+ if i change input parameter,function should not do any sides  
+
+4.side effects and immutablity.
+  if function does io, or any mutations are done as part of input parameters called side effects..
+   Dont do side effects,
+
+5.Referencial transperancy
+
+6.Loops over recurrssion
+..............................................................................................
+			 Cloud Computing and Functional programming
+				(Micro services)
+				  (Reactive)
+How?
+.............................................................................................
+
+Request per thread model:
+
+1 request = 1 thread
+100 req  =100 threads
+1000 req = 1000 threads
+
+
+Drawbacks of RPT model:
+
+1.More thread creations
+    =>Every thread creation,running, requires some memory , a thread can eat up 5mb.
+2.In linux os, if thread is not active long time, os moves the thread to sleeping state
+  and once the data is avaiable,os moves the thread to active state : this process is called
+  context switch.
+
+C10K problem:
+
+How to fix the multi threaded io model, having limited no of threads how to handle more concurrency.
+
+Because of c10k, Non blocking arch were created.
+
+
+Implementations
+
+1.nginx
+2.nodejs
+
+......
+
+Java and nonblocking arch.
+
+Java introduced non blocking socket api via "Java 7 nio" lib
+
+Java nio was not ready for thread management.
+
+
+Thanks to red hat..
+
+Red Hat introduced the first framework 
+
+1.Netty Server /framework written on nio libs for building non blocking io apps
+
+2.Vert.X - the second non blocking arch written on jvm
+
+3.Quarkus
+   Java 11 has feature called "Graal" Compiler integration
+
+4.Spring 5 framework offers Non blocking arch via "Spring Web Flux"    
+............................................................................................
+			       Java 11
+............................................................................................
+
+Java Versioning System
+Multiple JDK options  - Oracle JDK, Open JDK,Zuul jdk,....
+.............................................................................................
+				Java Release Cadence
+............................................................................................
+
+In traditional java (before java 11) , Oracle used to have model on which they produced a  major version and the goal was to have a major version approximately every two years and they would support it for a long time.
+
+Java 9 - 2015-jan-----2017-jan -  two years
+
+In case if they want to add new features/changes who want to add , means who could not change the orginal specification, rather who keeps minior version
+ 
+  9.1,9.2,9.3........
+
+Until new release come , oracle need to give support.
+Minor updates were release every six months....
+
+Oracle wanted to change this version model, decided to move paid model.
+.............................................................................................
+			Features which were not available in OpenJDK 9,10
+				 Now Available in OpenJDK 11
+
+1.Application class data sharing
+2.Project ZGC
+3.Flight Recorder
+4.Mission Controller
+5.System Usage Loggers
+..............................................................................................
+				Java 9 features- Java 11 Features
+..............................................................................................
+..............................................................................................
+				   Java Modular System
+..............................................................................................
+ 
+Java Module system introduced in java 9, in 11 it has been standardized
+
+
+What is Java Module?
+  A Java Module is a packaging mechanism that enables you to package a java apps or apis as a separate java Modules.
+ A Java Module is packaged as a modular JAR file.
+ A Java Module can specify which of the java packages it contains that should be visible to other java modules which uses this module -  scope /visibility of the packages.
+ A Java Module can have depedency which module it requires.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
