@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/WelcomeParent/WelcomeParent.iml" filepath="$PROJECT_DIR$/WelcomeParent/WelcomeParent.iml" />
+      <module fileurl="file://$PROJECT_DIR$/admin/admin.iml" filepath="$PROJECT_DIR$/admin/admin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/greeter/greeter.iml" filepath="$PROJECT_DIR$/greeter/greeter.iml" />
+      <module fileurl="file://$PROJECT_DIR$/guest/guest.iml" filepath="$PROJECT_DIR$/guest/guest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/javaModuleApp.iml" filepath="$PROJECT_DIR$/javaModuleApp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/reflection/reflection.iml" filepath="$PROJECT_DIR$/reflection/reflection.iml" />
+      <module fileurl="file://$PROJECT_DIR$/repository/repository.iml" filepath="$PROJECT_DIR$/repository/repository.iml" />
+      <module fileurl="file://$PROJECT_DIR$/sharedmodule/sharedmodule.iml" filepath="$PROJECT_DIR$/sharedmodule/sharedmodule.iml" />
+      <module fileurl="file://$PROJECT_DIR$/user/user.iml" filepath="$PROJECT_DIR$/user/user.iml" />
+      <module fileurl="file://$PROJECT_DIR$/welcome/welcome.iml" filepath="$PROJECT_DIR$/welcome/welcome.iml" />
+      <module fileurl="file://$PROJECT_DIR$/welcomeconsumer/welcomeconsumer.iml" filepath="$PROJECT_DIR$/welcomeconsumer/welcomeconsumer.iml" />
+    </modules>
+  </component>
+</project>

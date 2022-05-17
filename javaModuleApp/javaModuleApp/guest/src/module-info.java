@@ -1,0 +1,3 @@
+module guest {
+    requires admin;
+}

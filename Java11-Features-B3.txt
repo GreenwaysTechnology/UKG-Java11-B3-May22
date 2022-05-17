@@ -142,7 +142,7 @@ Red Hat introduced the first framework
 
 4.Spring 5 framework offers Non blocking arch via "Spring Web Flux"    
 ............................................................................................
-			       Java 11
+			          Java 11
 ............................................................................................
 
 Java Versioning System
@@ -187,43 +187,690 @@ What is Java Module?
  A Java Module is packaged as a modular JAR file.
  A Java Module can specify which of the java packages it contains that should be visible to other java modules which uses this module -  scope /visibility of the packages.
  A Java Module can have depedency which module it requires.
+..............................................................................................
+			How to  list modules in the jdk
+
+
+Lab: Create greeter module, how to use inside app module
+
+Steps:
+
+How to create greeter module
+
+1.create plain java project -modulejavaapp
+
+2.Right click on modulejavapp , create module
+
+3.create package under src
+   com.ukg.greeter
+
+4.create java class and have some methods
+
+package com.ukg.greeter;
+
+public class Greeter {
+    public String sayGreet() {
+        return "Greet";
+    }
+}
+5.create module-info.java file under src dir and exports packages
+
+src/module-info.java
+module greeter {
+    //exports packages
+    exports com.ukg.greeter;
+}
+
+.................................................................................
+
+How to create app  module and use greeter module
+
+1.Right click on modulejavapp , create module -app
+
+2.create package under src
+   com.ukg.app
+
+3.create java class and have main method
+
+4.create module-info.java file under src dir and require module
+
+src/module-info.java
+
+module app {
+    requires greeter;
+}
+in ide you can see error, add this module in class path.
+
+5.use module classes 
+package com.ukg.app;
+
+import com.ukg.greeter.Greeter;
+
+public class App {
+    public static void main(String[] args) {
+        Greeter greeter = new Greeter();
+        System.out.println(greeter.sayGreet());
+    }
+}
+............................................................................................
+				What if the package is not exported
+		 private packages - will not be available outside the current module
+............................................................................................
+
+
+Steps:
+
+1.create new package and declare class
+
+package com.ukg.hello;
+
+public class Hello {
+    public String sayHello(){
+        return "Hello";
+    }
+}
+
+2. dont export this package inside module.info
+src/module-info.java
+module greeter {
+    //exports packages
+    exports com.ukg.greeter;
+}
+....
+
+Try to use the class of unexported package in the app module
+
+import com.ukg.hello.Hello; // compile time error:Package 'com.ukg.hello' is declared in module 'greeter', which does not export it to module 'app'
+............................................................................................
+				 How to use jdk built in modules
+
+In old java , java 8 and before, all packages are available inside app, java 9 on wards you cant access all packages.
+
+How to include other modules like java.sql
+
+1.create reposiotry module
+2.create package com.ukg.repo and class
+
+package com.ukg.repo;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+public class Repository {
+
+    public Connection getConnection() throws SQLException {
+        return DriverManager.getConnection("");
+    }
+
+}
+
+3.module-info.java
+module repository {
+    //import sql module
+    requires java.sql;
+    requires java.sql.rowset;
+}
+..............................................................................................
+				Qualified Export
+..............................................................................................
+
+Lets assume i have module called
+ "admin"
+and admin has package 
+com.ukg.admin
+
+as soon as i export com.ukg.admin package
+
+module admin {
+    //exports packages
+    exports com.ukg.admin;
+}
+here the package is public to all modules who ever requires admin module who can access admin package - public to all modules.
+
+What if i want to restrict packages to be exported to only specific modules, which is called qualified export
+
+Syntax:
+
+exports package to module1,module2,module2
+
+
+steps:
+
+1.create module -admin
+
+2.declare package and class
+package com.ukg.admin;
+
+public class AuthService {
+
+    public String login() {
+        return "Login Service";
+    }
+}
+
+3.declare module-info.java
+module admin {
+    //export to all modules
+   // exports  com.ukg.admin;
+    //export to only selected modules eg only user module
+//    exports  com.ukg.admin to user;
+    exports  com.ukg.admin to user,guest;
+
+}
+
+4.How to use exported modules
+package com.ukg.user;
+
+import com.ukg.admin.AuthService;
+
+public class UserService {
+    public String checkLogin() {
+        AuthService authService = new AuthService();
+        return authService.login();
+    }
+}
+module user {
+    requires admin;
+}
+.............................................................................................
+				 Transitive Dependency
+............................................................................................
+
+Transitive Dependency means that A depends on B and B depends on C.
+
+requires transtive
+ there is a possibility to grant accee of the modules on which our current module depends.
+to that module that uses our current module.
+
+The 'requires transtive keyword helps to achieve this.
+
+This means all the modules that are using our module will get access to the transtive dependency automatically.
+
+
+Steps:
+
+1.create Parent Module which to be imported into another module
+
+Create welcomeparent module
+
+package com.ukg.welcome.parent;
+
+public class WelcomeParent {
+
+    public String sayWelcomeParent(){
+        return "HelloWelcome Parent";
+    }
+}
+
+module-info
+module welcomeparent {
+    exports com.ukg.welcome.parent;
+}
+
+2.create child module which imports welcomeparent module
+
+create module welcome
+
+package com.ukg.welcome;
+
+public class Welcome {
+    public String sayWelcome(){
+        return  "Hello";
+    }
+}
+
+module-info
+
+ Here when we import welcomeparent module, we can say that "welcomeparent" will be transitive dependency- if any body uses welcome, who can access "welcomeparent" without reimporting.
+
+module welcome {
+    exports com.ukg.welcome;
+    requires transitive welcomeparent;
+    requires transitive java.sql;
+    requires transitive java.logging;
+    requires transitive java.net.http;
+}
+
+3.create module which has transitive dependency module
+
+create consumermodule which can uses welcomeparent which is transtive , welcome
+
+package com.ukg.wel.consumer;
+
+import com.ukg.welcome.Welcome;
+import com.ukg.welcome.parent.WelcomeParent;
+
+public class WelcomeConsumer {
+    public String getWelcome() {
+        Welcome welcome = new Welcome();
+        WelcomeParent welcomeParent = new WelcomeParent();
+        return welcome.sayWelcome();
+    }
+}
+module-info.java
+module welcomeconsumer {
+    requires welcome;
+}
+
+Shared Modules:
+
+ The module contains other modules transitively, which can reused by any other modules in simpler manner.
+
+Steps:
+create module called sharedmodule
+
+module-info.java
+
+module sharedmodule {
+    requires transitive java.sql;
+    requires transitive java.logging;
+    requires transitive java.net.http;
+    requires transitive greeter;
+}
+
+How to use this shared module
+
+inside app for eg
+
+module app {
+    //import the module to linked
+    //requires greeter;
+    requires sharedmodule;
+}
+............................................................................................
+				static exports
+............................................................................................
+
+The module is avaiable both in compile time and runtime.if you want to restric the module must be avaible in compile time only,eg testing lib modules,code generation modules....
+
+During compile time dendency the module is required, during runtime which is optional
+
+
+module-info.java
+
+requires static moduleName
+
+module repository {
+    //import sql module
+//    requires java.sql;
+    requires java.sql.rowset;
+    requires static  java.sql;
+}
 
 
 
 
+..............................................................................................
+			  Java Reflection and Java 9 Modules
+.............................................................................................
+
+In java modules, reflection are disabled by default.
+
+if any module access the classes of other modules, cant do reflection by default.
+
+if you want to allow other modules to enable reflection.
+
+there are keywords
+
+open 
+opens
+opens...to...
+
+
+How to enable the entire module for reflection.
+
+open module client.module {
+
+}
+
+
+How to enable the selected packages for reflection
+
+module client.module {
+   opens com.ukg.service
+}
+
+How to enable the selected packages to the selected modules
+
+module client.module {
+   opens com.ukg.service to dashboard
+}
+
+eg:
+module greeter {
+ //what are the packages are to be exported
+  opens com.ukg.greeter;
+  exports com.ukg.greeter;
+}
+package com.ukg.reflect;
+
+
+reflection module:
+
+import com.ukg.greeter.Greeter;
+
+import java.lang.reflect.Field;
+
+public class ReflectMain {
+    public static void main(String[] args) {
+        Greeter greeter = new Greeter();
+        Class<?> theClass = greeter.getClass();
+        Field[] declaredFields = theClass.getDeclaredFields();
+        System.out.println(declaredFields.length);
+    }
+}
+.............................................................................................
+				Java 9 Features
+.............................................................................................
+Enchancement features:
+......................
+					
+	          try....with resource improvements - Java 9 Feature
+
+The try-with-resources statement is a try statement with one or more resources duly declared. Here resource is an object which should be closed once it is no more required. The try-with-resources statement ensures that each resource is closed after the requirement finishes. Any object implementing java.lang.AutoCloseable or java.io.Closeable, interface can be used as a resource.
+
+Prior to Java 9, resources are to be declared before try or inside try statement as shown below in given example. In this example, we'll use BufferedReader as resource to read a string and then BufferedReader is to be closed.
+
+package com.ukg.java9.trywithres;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+
+public class BeforeJava9TryWithResource {
+    public static void main(String[] args) throws IOException {
+        System.out.println(readData("test"));
+    }
+
+    static String readData(String message) throws IOException {
+        Reader inputString = new StringReader(message);
+        BufferedReader br = new BufferedReader(inputString);
+        try (BufferedReader br1 = br) {
+            return br1.readLine();
+        }
+    }
+}
+
+package com.ukg.java9.trywithres;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+
+public class AfterJava9TryWithResource {
+    public static void main(String[] args) throws IOException {
+        System.out.println(readData("test"));
+    }
+
+    static String readData(String message) throws IOException {
+        Reader inputString = new StringReader(message);
+        BufferedReader br = new BufferedReader(inputString);
+        try (br) {
+            return br.readLine();
+        }
+    }
+}
+..............................................................................................
+.........................................................................................
+			Java 9 Anonymous Inner Classes Improvement
+...........................................................................................
+
+Java 9 introduced a new feature that allows us to use diamond operator with anonymous classes. Using the diamond with anonymous classes was not allowed in before Java .
+
+In Java 9, as long as the inferred type is denotable, we can use the diamond operator when we create an anonymous inner class.
+
+Data types that can be written in Java program like int, String etc are called denotable types. Java 9 compiler is enough smart and now can infer type.
+
+java 8 code and error:
+
+abstract class ABCD<T>{  
+    abstract T show(T a, T b);  
+}  
+public class TypeInferExample {  
+    public static void main(String[] args) {  
+        ABCD<String> a = new ABCD<>() { // diamond operator is empty  
+            String show(String a, String b) {  
+                return a+b;   
+            }  
+        };    
+        String result = a.show("Java","9");  
+        System.out.println(result);  
+    }  
+}  
+
+TypeInferExample.java:7: error: cannot infer type arguments for ABCD<T>
+		ABCD<String> a = new ABCD<>() {
+		                         ^
+  reason: cannot use '<>' with anonymous inner classes
+  where T is a type-variable:
+    T extends Object declared in class ABCD
+1 error
+............................................................................................
+				Java 9 Onwards it is valid
+............................................................................................
 
 
 
+package com.ukg.java9.diamondoperator;
+
+abstract class ABCD<T>{
+    abstract T show(T a, T b);
+}
+public class TypeInfer {
+    public static void main(String[] args) {
+        ABCD<String> a = new ABCD<>() { // diamond operator is empty, compiler infer type
+            String show(String a, String b) {
+                return a+b;
+            }
+        };
+        String result = a.show("Java","9");
+        System.out.println(result);
+
+        ABCD<Integer> b = new ABCD<>() {
+            @Override
+            Integer show(Integer a, Integer b) {
+                return a.intValue() * b.intValue();
+            }
+        };
+        System.out.println(b.show(10,10));
+    }
+}
+..............................................................................................
+			Java 9 @SafeVarargs Annotation
+..............................................................................................
+package com.ukg.java9.safevarargsann;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class SafeVarArgAnnotation {
+    // Applying @SaveVarargs annotation
+    @SafeVarargs
+    private void display(List<String>... products) { // Not using @SaveVarargs
+        for (List<String> product : products) {
+            System.out.println(product);
+        }
+    }
+
+    public static void main(String[] args) {
+        SafeVarArgAnnotation p = new SafeVarArgAnnotation();
+        List<String> list = new ArrayList<String>();
+        list.add("Laptop");
+        list.add("Tablet");
+        p.display(list);
+    }
+}
+............................................................................................
+..............................................................................................
+			 Collection factory and immutable apis
+..............................................................................................
+
+Create List Creation;
+
+List<String> list = new ArrayList<> ();
+list.add("a")
+
+List<String> list  = Arrays.asList(array)
+
+Java 9 on wards:
+
+List.of() //factory methods
+Set.of()
+
+Java 9 Collection library includes static factory methods for List, Set and Map interface. These methods are useful to create small number of collection.
+
+Suppose, if we want to create a list of 5 elements, we need to write the following code.
+
+static <E> List<E>	Of()	It It returns an immutable list containing zero elements.
+static <E> List<E>	of(E e1)	It It returns an immutable list containing one element.
+static <E> List<E>	of(E... elements)	It It returns an immutable list containing an arbitrary number of elements.
+static <E> List<E>	of(E e1, E e2)	It It returns an immutable list containing two elements
+package com.ukg.java9.collections;
+				
+
+package com.ukg.java9.collectionsapi;
+
+import java.util.List;
+import java.util.Set;
+
+public class ImmutableCollections {
+    public static void main(String[] args) {
+        List numberList = List.of(1,2,3,4,5);
+        numberList.forEach(System.out::println);
+        //It is error : un modifiable list
+//        numberList.add(90);
+        numberList.forEach(System.out::println);
+        Set.of(2,3,4).forEach(System.out::println);
+    }
+}
+..............................................................................................
+			      REPL - Read Evaulate Print Loop -Jshell
+.............................................................................................
+
+Why REPL?
+
+IF you want to test any code 
+
+Open editor and write program
+Save the program
+Compile the program
+Edit if any compile time error
+Run the program
+Edit if any runtime error
+Repeat the process
+
+REPL does not require above steps. We can evaluate statements, methods and classes, even can write hello program without creating class.
+
+Java 9 offers REPL tool called "JShell".
+
+Java Shell Tool (JShell)
+       It is an interactive Java Shell tool, it allows us to execute Java code from the shell and shows output immediately. JShell is a REPL (Read Evaluate Print Loop) tool and run from the command line.
+
+How to start using JShell?
 
 
+jshell
+|  Welcome to JShell -- Version 11.0.11
+|  For an introduction type: /help intro
+
+jshell> int a=10
+a ==> 10
+
+jshell> int b=20
+b ==> 20
+
+jshell> a*b
+$3 ==> 200
+
+jshell> class Hello {
+   ...> public void hello(){
+   ...> System.out.println("Hello");
+   ...> }
+   ...> }
+|  created class Hello
+
+jshell> new Hello().hello()
+Hello
+
+jshell> Runtime.getRuntime()
+$6 ==> java.lang.Runtime@2a5ca609
+
+jshell> Runtime.getRuntime().freeMemory()
+$7 ==> 1062331056
+
+jshell> Runtime.getRuntime().maxMemory()
+$11 ==> 17112760320
+.............................................................................................
+				Java 9 new Stream apis:
+.............................................................................................
+
+static <T> Stream<T>	ofNullable(T t)	It returns a sequential Stream containing a single element, if non-null, otherwise returns an empty Stream.
+
+default Stream<T>	takeWhile(Predicate<? super T> predicate)	It returns, if this stream is ordered, a stream consisting of the longest prefix of elements taken from this stream that match the given predicate. Otherwise returns, if this stream is unordered, a stream consisting of a subset of elements taken from this stream that match the given predicate.
+
+default Stream<T>	dropWhile(Predicate<? super T> predicate)	It returns, if this stream is ordered, a stream consisting of the remaining elements of this stream after dropping the longest prefix of elements that match the given predicate. Otherwise returns, if this stream is unordered, a stream consisting of the remaining elements of this stream after dropping a subset of elements that match the given predicate.
 
 
+package com.ukg.java9.streamsnewapis;
 
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+public class StreamExample {
+    public static void main(String[] args) {
+        List<Integer> list
+                = Stream.of(2,2,3,4,5,6,7,8,9,10)
+                .dropWhile(i -> (i % 2 == 0)).collect(Collectors.toList());
+        System.out.println(list);
 
+        Stream<Integer> val
+                = Stream.ofNullable(null);
+        System.out.println("Nullable Stream returns empty");
+        val.count();
+        val.forEach(System.out::println);
+    }
+}
+..............................................................................................
+				Java 9 versioning Model
+............................................................................................
 
+Java 9 uses semvar version system.
 
+Java version-string is a format that contains version specific information. This version-string consists of major, minor, security and patch update releases.
 
+In Java 9, a new version-string scheme is introduced that looks like the below.
 
+$MAJOR.$MINOR.$SECURITY.$PATCH  
 
+9.0.1.1
+..............................................................................................
+			   Reactive Stream Extension and Implementation
+..............................................................................................
 
+Rxjava,Project reactor
 
+Java supports reactive programming via extensions "rxjava,project reactor"
 
+New Programming model which is used to for data streaming and processing in non blocking/async way.
 
+Reactive Programming is common concept used by many languages and framworks.
+ js - rxjs
+ java - rxjava
+ scala -rxscala
 
+once rxjava got popular , there was spec was published.
 
+=>https://www.reactivemanifesto.org/
+=>https://www.reactive-streams.org/  - it is published for java technology
 
-
-
-
-
-
-
-
-
-
-
-
+Java 9 has give reactive-streams spec implementation at language level.
+..............................................................................................
+				Java 10 Features
+.............................................................................................
 
 
 

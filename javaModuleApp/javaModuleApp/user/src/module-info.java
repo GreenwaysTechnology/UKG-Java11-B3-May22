@@ -1,0 +1,3 @@
+module user {
+    requires admin;
+}
