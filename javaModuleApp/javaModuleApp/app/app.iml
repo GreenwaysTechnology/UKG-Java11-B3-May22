@@ -7,7 +7,6 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="greeter" />
     <orderEntry type="module" module-name="sharedmodule" />
   </component>
 </module>

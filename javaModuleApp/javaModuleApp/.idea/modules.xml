@@ -11,6 +11,8 @@
       <module fileurl="file://$PROJECT_DIR$/reflection/reflection.iml" filepath="$PROJECT_DIR$/reflection/reflection.iml" />
       <module fileurl="file://$PROJECT_DIR$/repository/repository.iml" filepath="$PROJECT_DIR$/repository/repository.iml" />
       <module fileurl="file://$PROJECT_DIR$/sharedmodule/sharedmodule.iml" filepath="$PROJECT_DIR$/sharedmodule/sharedmodule.iml" />
+      <module fileurl="file://$PROJECT_DIR$/some.framework/some.framework.iml" filepath="$PROJECT_DIR$/some.framework/some.framework.iml" />
+      <module fileurl="file://$PROJECT_DIR$/the.client.app/the.client.app.iml" filepath="$PROJECT_DIR$/the.client.app/the.client.app.iml" />
       <module fileurl="file://$PROJECT_DIR$/user/user.iml" filepath="$PROJECT_DIR$/user/user.iml" />
       <module fileurl="file://$PROJECT_DIR$/welcome/welcome.iml" filepath="$PROJECT_DIR$/welcome/welcome.iml" />
       <module fileurl="file://$PROJECT_DIR$/welcomeconsumer/welcomeconsumer.iml" filepath="$PROJECT_DIR$/welcomeconsumer/welcomeconsumer.iml" />

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/javaModuleApp/WelcomeParent/WelcomeParent.iml" filepath="$PROJECT_DIR$/javaModuleApp/WelcomeParent/WelcomeParent.iml" />
+      <module fileurl="file://$PROJECT_DIR$/javaModuleApp/admin/admin.iml" filepath="$PROJECT_DIR$/javaModuleApp/admin/admin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/javaModuleApp/app/app.iml" filepath="$PROJECT_DIR$/javaModuleApp/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/javaModuleApp/greeter/greeter.iml" filepath="$PROJECT_DIR$/javaModuleApp/greeter/greeter.iml" />
+      <module fileurl="file://$PROJECT_DIR$/javaModuleApp/guest/guest.iml" filepath="$PROJECT_DIR$/javaModuleApp/guest/guest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/javaModuleApp.iml" filepath="$PROJECT_DIR$/.idea/javaModuleApp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/javaModuleApp/reflection/reflection.iml" filepath="$PROJECT_DIR$/javaModuleApp/reflection/reflection.iml" />
+      <module fileurl="file://$PROJECT_DIR$/javaModuleApp/repository/repository.iml" filepath="$PROJECT_DIR$/javaModuleApp/repository/repository.iml" />
+      <module fileurl="file://$PROJECT_DIR$/javaModuleApp/sharedmodule/sharedmodule.iml" filepath="$PROJECT_DIR$/javaModuleApp/sharedmodule/sharedmodule.iml" />
+      <module fileurl="file://$PROJECT_DIR$/javaModuleApp/some.framework/some.framework.iml" filepath="$PROJECT_DIR$/javaModuleApp/some.framework/some.framework.iml" />
+      <module fileurl="file://$PROJECT_DIR$/javaModuleApp/the.client.app/the.client.app.iml" filepath="$PROJECT_DIR$/javaModuleApp/the.client.app/the.client.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/javaModuleApp/user/user.iml" filepath="$PROJECT_DIR$/javaModuleApp/user/user.iml" />
+      <module fileurl="file://$PROJECT_DIR$/javaModuleApp/welcome/welcome.iml" filepath="$PROJECT_DIR$/javaModuleApp/welcome/welcome.iml" />
+      <module fileurl="file://$PROJECT_DIR$/javaModuleApp/welcomeconsumer/welcomeconsumer.iml" filepath="$PROJECT_DIR$/javaModuleApp/welcomeconsumer/welcomeconsumer.iml" />
+    </modules>
+  </component>
+</project>
