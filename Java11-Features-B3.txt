@@ -1704,22 +1704,645 @@ How to use this on linux?
 Inside linux:
 java  -XX:+UnlockExperimentalVMOptions -XX:AOTLibrary=./App.so App
 ..............................................................................................
+				 var and Lambda Parameters
+..............................................................................................
+Local-Variable Syntax for Lambda Parameters
+
+Local-Variable Syntax for Lambda Parameters is the only language feature release in Java 11.
+In Java 10, Local Variable Type Inference was introduced. Thus we could infer the type of the variable from the RHS – var list = new ArrayList<String>();
+
+package com.ukg.java11features;
+
+@FunctionalInterface
+interface Welcome {
+    void sayHello(String name, String message);
+}
 
 
+public class LambdaParameterApp {
+    public static void main(String[] args) {
+        Welcome welcome = null;
+        welcome = (String name, String message) -> System.out.println(message + name);
+        welcome.sayHello("Subramanian", "Hello");
+        welcome = (name, message) -> System.out.println(message + name);
+        welcome.sayHello("Subramanian", "Hello");
+        //java 11 feature
+        welcome = (var name, var message) -> System.out.println(message + name);
+        welcome.sayHello("Subramanian", "Hello");
+
+    }
+}
+..............................................................................................					HTTP Client
+.............................................................................................
+
+What is HTTP Client?
+ HTTP client is api  for making http calls from one application to another application.
+
+HTTP Client Apis were more popular in Mobile Developments(Android)
+
+After introduction of Microservices, HTTP Client need was understood in server side applications.
+
+Service Interactions:
+ Services can talk each other via different protocals, if services are talking via http,
+ Those services are called http services
+
+Service Types:
+1.REST API Service
+2.GraphQL Service
+3.RPC Service via gRPC framework
+
+REST / GraphQL Service Interactions via HTTP protocal
+
+REST API interactions are done via apis provided by frameworks and libs.
+
+MicroService Implementation:
+
+1.Spring Cloud
+  -Spring Cloud OpenFeign
+  -Spring Reactive WebClient
+
+2.Quarkus
+   smallrye-rest-client
+3.Vertx
+   Vert.x Web Client
+
+if you look at every framework , who offers their own implmentation, there is no standard among libs. in order to standardized , Java 11 HTTP Client api was introduced.
+
+.............................................................................................
+			 Microservice Enabled HTTP Client- JEP 321
+............................................................................................
+
+Major features supported by HTTP Client:
+
+1.Support for both HTTP/1.1 and HTTP/2,WebSocket
+2.Support for synchronous and asynchronous programming models
+3.Support for Handling request and response as Reactive Streams
+4.Support for HTTP cookies
+5.HttpClients are created based on "Builder Pattern /fluent Apis"
+6.Supports functional Programming model 
+package com.ukg.java11features.http;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
+class TodoService {
+    HttpClient httpClient;
+    HttpRequest request;
+
+    TodoService() {
+        httpClient = HttpClient.newBuilder().build();
+    }
+
+    //api to fetch all tdos
+    public void fetchAllTodos() {
+        var url = "https://jsonplaceholder.typicode.com/todos";
+        request = HttpRequest
+                .newBuilder().uri(URI.create(url)).build();
+
+        try {
+            //make request and get all todos
+            var response = httpClient.send(request, HttpResponse.BodyHandlers.ofString()); //make http request sync
+            //log response
+            System.out.println(response.headers());
+            System.out.println(response.body());
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    //async request
+    public void fetchTodosAsync() {
+        var url = "https://jsonplaceholder.typicode.com/todos";
+        request = HttpRequest
+                .newBuilder().uri(URI.create(url)).build();
+
+        httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                .thenApply(response -> {
+                    System.out.println("Http Client Thread : " + Thread.currentThread().getName());
+                    return response.body();
+                }).thenAccept(res -> {
+                    System.out.println(res);
+                })
+                .join();
+    }
+
+}
+
+public class HTTPSyncAPICall {
+    public static void main(String[] args) {
+        var todoService = new TodoService();
+        //todoService.fetchAllTodos();
+        todoService.fetchTodosAsync();
+    }
+}
+.............................................................................................
+			New File IO APIS
+..............................................................................................
 
 
+Reading/Writing Strings to and from the Files
+
+Java 11 strives to make reading and writing of String convenient.
+It has introduced the following methods for reading and writing to/from the files:
+
+readString()
+writeString()
+
+package com.ukg.java11features.io;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+public class ReadWriteFromStrings {
+    public static void main(String[] args) {
+        Path path = null;
+        String data = "Hello, How are you!!!1";
+        try {
+            path = Files.writeString(Files.createTempFile("test", "txt"), data);
+            System.out.println(path);
+            //read data from the file as string
+            String output= Files.readString(path);
+            System.out.println(output);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+.............................................................................................
+		 Inner classes and its Problems and How to solve in Java-11
+		     (Nested Based Access Control)
+.............................................................................................
+Java allows classes and interfaces to be nested within each other. These nested types have unrestricted access to each other, including to private fields, methods, and constructors.
+
+ "calling private method of outerclass from the inner class via reflection is possible now"
 
 
+package com.ukg.java11features.innerclasses;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+class Outer {
+
+    //private method of outer
+    private void doStuff() {
+        System.out.println("Outer Private Method");
+    }
+
+    public void createInner() {
+        Inner inner = new Inner();
+        inner.reflectOuter(new Outer());
+    }
+
+    class Inner {
+        public void reflectOuter(Outer outer) {
+            try {
+                Method method = outer.getClass().getDeclaredMethod("doStuff");
+                method.invoke(outer);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            } catch (InvocationTargetException | NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+}
+
+public class AppInnerClass {
+    public static void main(String[] args) {
+            new Outer().createInner();
+    }
+}
+..............................................................................................
+			 String Utility Methods
+..........................................................................................
+
+lines()
+   This method returns a stream of strings, which is collection of all substrings spilt by lines.
+    public static void getLines() {
+        String docs = "<html>\n <head>\n <title>" +
+                "\nHello \n </title>\n</head>\n " +
+                "<body>\n Welcome \n </body> ";
+        System.out.println(docs);
+        var listOfString = docs.lines().collect(Collectors.toList());
+        System.out.println(listOfString);
+
+        var res = listOfString.stream().filter(data -> data.contains("Welcome")).collect(Collectors.toList());
+        System.out.println(res);
+    }
+
+isBlank
+   The instance method returns boolean value, Empty strings and and white strings are considered blank.
+
+      //white space and blank space called blank
+        var res = isBlank("") ? "Blank" : "Not Blank";
+        System.out.println(res);
+  public static boolean isBlank(String str) {
+        return str.isBlank();
+    }
 
 
+strip:
+ Removes the white space from both, begining and the end of the string
+
+var stripedStr = strip(" Hello ");
+System.out.println(stripedStr);
+
+public static String strip(String str){
+        return str.strip();
+}
 
 
+repeat(n)
+  To repeat the strings n number of times
 
 
+        String repeateStr = repeat("Subramanian", 5);
+        System.out.println(repeateStr);
+  private static String repeat(String str, int times) {
+        return str.repeat(times);
+    }
+...........................................................................................
+				Garbage Collectors
+..........................................................................................
 
 
+What is Garbage Collection?
+
+ A Garbage Collection is a mechanism that provides automatic memory management.
+
+Memory Management can be done in two ways
+1.manual
+   Via code,you have to write mememory management code.
+2.automation
+   The process will run a program, to destroy un wanted memory.
+
+Every Process has memory segements.
+
+1.heap
+   dynmic memory needed by application.
+2.stack
+   
+3.code segement
+
+class Hello {
+  void hello(){
+      10 + 10
+  }
+}
+Hello  h = new Hello()
+h.hello()==> pushed into stack==>will Allocate memory for a method=>Stack Frame(Runtime representation of method)
+
+Heap Segment:
+ Dynamic Memory, on demand is created, no demand means you have to destroy - Garbage Collection.
+..........................................................................................
+			 Finding and deleting the garbage from the Memory
+
+GC tracks each and every object available in the JVM heap space and removes unused objects
+
+How GC works?
+
+They two steps
+
+Mark and Sweep
+
+1.Mark - Process where GC identifies which objects are used and not.
+
+2.Sweep - Process where GC deletes the objects Which was identified during mark phase
 
 
+How to decide used memory and un used Memory?
+
+In order to understand that JVM  divides the Heap into various parts
+
+They use model called generations
+
+What is the Young generation?
+What is the Old generation?
+What is the Permanent generation?
+
+
+In order to understand that JVM  divides the Heap into various parts
+
+They use model called generations
+
+What is the Young generation?
+What is the Old generation?
+What is the Permanent generation?
+
+
+Young Generation:
+  All newly created objects
+
+Young itself has two segements
+ -Eden
+    where all objects are put when they are new
+ -Survivor
+    After each cycle of garbage collection, all  objects that remain in the Eden
+  Partition are moved to the Survior Partition.
+
+Old Generation
+  This pool basically contains tenured and virtual (reserved) space and will be holding those objects which survived after garbage collection from Young Generation - All long lived objects
+
+Tenured Space: 
+    This memory pool contains objects which survived after multiple garbage collection means object which survived after garbage collection from Survivor space.
+
+Permanent Generation :
+   This memory pool as name also says contain permanent class metadata and descriptors information so PermGen space always reserved for classes and those that is tied to the classes for example static members
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+		GC is a just Program only either written in c/c++/java
+
+       When JVM was created, since then so many programs been introduced => Types of GC
+
+Garbage Collector is a program which is embeded inside jvm.
+GC scans Heap periodically based on various conditions.
+GC is run by a thread or threads - GC Threads which are JVM built in threads.
+
+
+GC since it  is program HOT Spot JVM offers many programs
+
+1.Serial Garbage Collector
+2.Parallel Garbage Collector
+3.Garbage-First(G1) Collector
+4.Concurrent Mark Sweep(CMS) Garbage Collector
+....Java 11........
+5.Z Collector  - GZC
+6.Epsilon: A No-Op Garbage Collector
+..............................................................................................  			 Selecting Collectors
+
+Which one i need?
+
+JVM offers many GC to meet different application needs. You need to select Right GC for your app.
+
+There are three criteria
+
+1.Throughput:
+	The Percentage of total time spent in usefull application activity vs memory allocation and GC.
+     If throughput is 95% that means the application code is running 95% of the time and GC is running 5% => you need higher throughput for any high-load.
+
+2.Latency:
+   App responsiveness , which is affected by "GC pauses",if you want the lowest possible latency
+
+  if GC runs, which pauses /freeze/stops the app during that time lets say 1 ms GC running, app will be unresponsive 
+    
+3.FootPrint:
+     The working set of a process , measured in pages and cache lines
+
+Different users and apps require different needs, some one want higher throuhtput and who bear latency
+.............................................................................................
+				Serial Garbage Collector
+..............................................................................................
+
+  Serial Garbage collector is well-matched for single-threaded environments.
+
+ It uses the only thread for garbage collection. It works by holding all the threads of an application. It means that threads of the application freeze by the serial garbage collector during the garbage collection process and the process is known as stop the world event. Avoid the use of serial GC in the server environment. 
+
+We can use it for simple programs. If you want to use the serial garbage collector, execute the -XX:+UseSerialGC JVM argument to activate it.
+
+
+java -Xlog:gc* -XX:+UseSerialGC   MemoryLeak
+                          
+[0.048s][info][gc] Using Serial
+[0.051s][info][gc,heap,coops] Heap address: 0x0000000404200000, size: 16318 MB, Compressed Oops mode: Zero b
+ased, Oop shift amount: 3
+[3.616s][info][gc,start     ] GC(0) Pause Young (Allocation Failure)
+[4.094s][info][gc,heap      ] GC(0) DefNew: 278163K->34449K(313344K)                           
+[4.
+
+............................................................................................ 
+   Parallel Garbage Collector : Throughput collector does not care about latency
+............................................................................................
+	   Parallel Garbage Collector is the default GC used by the JVM in jdk 8
+
+   The working of the parallel garbage collector is the same as the serial garbage collector. 
+he only difference between serial and parallel garbage collector is that serial garbage collector uses a single thread for garbage collection process while the parallel garbage collector uses multiple threads for the garbage collection.
+
+  Parallel GC can use multiple CPUs to speed up the application throughput. So, it is also known as throughput collector. 
+
+   It is used if we want to execute a long process (like batch processing) and where long pauses are acceptable.
+    If you want to use the parallel garbage collector, execute the -XX:+UseParallelGC JVM argument to activate it.
+
+java -Xlog:gc* -XX:+UseParallelGC   MemoryLeak                            
+[0.019s][info][gc] Using Parallel
+[0.020s][info][gc,heap,coops] Heap address: 0x0000000404200000, size: 16318 MB, Compressed Oops mode: Zero b
+ased, Oop shift amount: 3
+[3.192s][info][gc,start     ] GC(0) Pause Young (Allocation Failure)
+[3.295s][info][gc,heap      ] GC(0) PSYoungGen: 260816K->42848K(304640K)                       
+[3.297s][info][gc,heap      ] GC(0) ParOldGen: 0K->161802K(696320K)                            
+[3.298s][info][gc,metaspace ] GC(0) Metaspace: 4751K->4751K(1056768K)    
+............................................................................................
+				CMS Garbage Collector
+......................................................................................
+
+   The Concurrent Mark Sweep (CMS) implementation uses multiple garbage collector threads for garbage collection. It's designed for applications that prefer shorter garbage collection pauses, and can afford to share processor resources with the garbage collector while the application is running.
+
+Simply put, applications using this type of GC respond slower on average, but don't stop responding to perform garbage collection.
+
+A quick point to note here is that since this GC is concurrent, an invocation of explicit garbage collection, such as using System.gc() while the concurrent process is working, will result in Concurrent Mode Failure / Interruption.
+
+If more than 98% of the total time is spent in CMS garbage collection, and less than 2% of the heap is recovered, then an OutOfMemoryError is thrown by the CMS collector. If necessary, we can disable this feature by adding the option -XX:-UseGCOverheadLimit to the command line.
+
+This collector also has a mode known as an incremental mode, which is being deprecated in Java SE 8 and may be removed in a future major release.
+
+Note : It has been deprecated
+
+java -XX:+UseConcMarkSweepGC --version
+Java HotSpot(TM) 64-Bit Server VM warning: Option UseConcMarkSweepGC was deprecated in version 9.0 and will 
+likely be removed in a future release.
+java 11.0.11 2021-04-20 LTS
+Java(TM) SE Runtime Environment 18.9 (build 11.0.11+9-LTS-194)              
+Java HotSpot(TM) 64-Bit Server VM 18.9 (build 11.0.11+9-LTS-194, mixed mode)
+
+..............................................................................................
+				G1 - Garbage First
+
+
+  G1 (Garbage First) Garbage Collector is designed for applications running on multi-processor machines with large memory space. It's available from the JDK7 Update 4 and in later releases.
+
+G1 collector will replace the CMS collector, since it's more performance efficient.
+
+Unlike other collectors, the G1 collector partitions the heap into a set of equal-sized heap regions, each a contiguous range of virtual memory. When performing garbage collections, G1 shows a concurrent global marking phase (i.e. phase 1, known as Marking) to determine the liveness of objects throughout the heap.
+
+After the mark phase is complete, G1 knows which regions are mostly empty. It collects in these areas first, which usually yields a significant amount of free space (i.e. phase 2, known as Sweeping). That's why this method of garbage collection is called Garbage-First.
+
+
+From JDK 9 on wards G1 is default GC
+
+java -Xlog:gc*   MemoryLeak
+[0.012s][info][gc,heap] Heap region size: 4M
+[0.022s][info][gc     ] Using G1
+
+
+java -Xlog:gc* -XX:+UseG1GC   MemoryLeak
+............................................................................................
+				Z Garbage Collector -ZGC)
+............................................................................................
+
+Z Garbage Collector
+			    (low latency and High throughput)
+
+The Z Garbage Collector, also known as ZGC, is a scalable low-latency garbage collector
+
+
+GC pause times should not exceed 10ms
+Handle heaps ranging from relatively small (a few hundreds of megabytes) to very large (many terabytes) in size
+No more than 15% application throughput reduction compared to using G1
+Lay a foundation for future GC features and optimizations leveraging colored pointers and load barriers
+Initially supported platform: Linux/x64
+
+Note: 
+
+ZGC is experimental GC in java 11
+ZGC is not supported in windows platform in java 11.
+
+IF You on windows platform:
+java -Xlog:gc* -XX:+UnlockExperimentalVMOptions  -XX:+UseZGC    MemoryLeak
+Error occurred during initialization of VM
+Option -XX:+UseZGC not supported
+
+
+if you run on linux platform:
+
+java -Xlog:gc* -XX:+UnlockExperimentalVMOptions  -XX:+UseZGC    MemoryLeak
+[0.017s][warning][gc,jvmci] Setting EnableJVMCI to false as selected GC does not support JVMCI: z gc
+[0.037s][info   ][gc,init ] Initializing The Z Garbage Collector       
+[0.037s][info   ][gc,init ] Version: 11.0.10+8-jvmci-21.0-b06 (release)
+[0.037s][info   ][gc,init ] NUMA Support: Disabled                    
+[0.037s][info   ][gc,init ] CPUs: 12 total, 12 available              
+[0.038s][info   ][gc,init ] Memory: 51207M                            
+[0.038s][info   ][gc,init ] Large Page Support: Disabled              
+[0.038s][info   ][gc,init ] Workers: 8 parallel, 2 concurrent         
+[
+..............................................................................................
+			Epsilon: A No-Op Garbage Collector
+
+.............................................................................................
+		          Epsilon: A No-Op Garbage Collector			............................................................................................
+A no op (or no-op), for no operation , is a computer instruction that takes up a small amount of space but specifies no operation. The computer processor simply moves to the next sequential instruction. The no op is included in most assembler languages
+
+Epsilon does not do any memory reallocation.
+
+Use cases : 
+1.Performance testing
+2.VM interface testing
+etc....
+
+java -Xlog:gc* -XX:+UnlockExperimentalVMOptions  -XX:+UseEpsilonGC    MemoryLeak
+[0.003s][warning][gc] Consider setting -Xms equal to -Xmx to avoid resizing hiccups
+[0.003s][warning][gc] Consider enabling -XX:+AlwaysPreTouch to avoid memory commit hiccups
+[0.003s][warning][gc,jvmci] Setting EnableJVMCI to false as selected GC does not support JVMCI: epsilon gc  
+[0.008s][info   ][gc      ] Resizeable heap; starting at 800M, max: 12801M, step: 128M
+[0.008s][info   ][gc      ] Using TLAB allocation; max: 4096K
+[0.008s][info   ][gc      ] Elastic TLABs enabled; elasticity: 1.10x
+[0.008s][info   ][gc      ] Elastic TLABs decay enabled; decay time: 1000ms
+[0.008s][info   ][gc      ] Using Epsilon
+[0.008s][info   ][gc,heap,coops] Heap address: 0x00000004dfe16000, size: 12801 MB, Compressed Oops mode: Zer
+o based, Oop shift amount: 3
+[7.74
+.....
+
+[130.614s][info   ][gc           ] Heap: 12801M reserved, 11552M (90.24%) committed, 11524M (90.02%) used
+[130.614s][info   ][gc,metaspace ] Metaspace: 1032M reserved, 4864K (0.46%) committed, 461K (0.04%) used    
+[137.764s][info   ][gc           ] Heap: 12801M reserved, 12192M (95.24%) committed, 12164M (95.02%) used
+[137.764s][info   ][gc,metaspace ] Metaspace: 1032M reserved, 4864K (0.46%) committed, 461K (0.04%) used    
+Terminating due to java.lang.OutOfMemoryError: Java heap space
+r
+.............................................................................................
+				Monitoring
+..............................................................................................
+
+Java Flight Recorder (JFR) is a tool for collecting diagnostic and profiling data about a running Java application
+
+How to monitor java apps using JFR?
+
+1.Static Any  - Run apps for some time and record in a file (fileName.jfr)
+
+2.Dynamic any -  During running apps - run jfr tool collect profiling information.
+
+
+java -XX:+UnlockCommercialFeatures -XX:+FlightRecorder -XX:StartFlightRecording=duration=60s,filename=myrecording.jfr MyApp
+
+...............................................................................
+			JDK Mission Control			
+	
+JDK Mission Control (JMC) is an advanced set of tools for managing, monitoring, profiling, and troubleshooting Java applications.
+
+JFR Records JVM and java apps activitity , JMC Dignanois the Recorded information.
+
+How to record information using JFR?
+
+There are two ways
+
+1.via java command line parameters
+java -XX:+UnlockCommercialFeatures -XX:+FlightRecorder -XX:StartFlightRecording=duration=60s,filename=myrecording.jfr MyApp
+
+2.For Running java applications
+
+Using jcmd command which is supplied as part of jdk 11 distribution.
+
+
+Demo: Identify Memory Leaks using JFR and JMC.
+...............................................
+
+import java.util.concurrent.*;
+
+public class MemoryLeak {
+
+    private static BlockingQueue<byte[]> queue = new LinkedBlockingQueue<>();
+
+    public static void main(String[] args) {
+
+        Runnable producer = () -> {
+            while (true) {
+                // generates 1mb of object every 10ms
+                queue.offer(new byte[1 * 1024 * 1024]);
+                try {
+                    TimeUnit.MILLISECONDS.sleep(10);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        Runnable consumer = () -> {
+            while (true) {
+                try {
+                    // process every 100ms
+                    queue.take();
+                    TimeUnit.MILLISECONDS.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        // give a name, good for profiling
+        new Thread(producer, "Producer Thread").start();
+        new Thread(consumer, "Consumer Thread").start();
+
+    }
+
+}
+java -XX:+UnlockCommercialFeatures -XX:+FlightRecorder -XX:StartFlightRecording=duration=60s,filename=memleak.jfr MemoryLeak
+
+Java HotSpot(TM) 64-Bit Server VM warning: Ignoring option UnlockCommercialFeatures; support was removed in
+11.0
+Started recording 1. The result will be written to:
+
+E:\session\Kronos\MonitoringUsingJFR\src\main\java\memleak.jfr
+Exception in thread "Producer Thread" java.lang.OutOfMemoryError: Java heap space
+        at MemoryLeak.lambda$main$0(MemoryLeak.java:12)
+        at MemoryLeak$$Lambda$72/0x00000008000f9c40.run(Unknown Source)
+        at java.base/java.lang.Thread.run(Thread.java:834)
+
+After getting this error you are going to identify the problems
 
 
 
